@@ -5,12 +5,6 @@ am.id as approval_rule_internal_id,
 ar.name as approval_rule,
 ar.BUILTIN.DF(custrecord_sas_ar_record_name) as record_name,
 ar.custrecord_sas_ar_priority as priority,
---BUILTIN.DF(custrecord_sas_am_approvalrule) as approval_rule,
---CASE
-    --WHEN BUILTIN.DF(custrecord_sas_am_approvalrule) LIKE '%Expense%' THEN 'Expense Report'
-	--WHEN BUILTIN.DF(custrecord_sas_am_approvalrule) LIKE '%Journals%' THEN 'Journal'
-	--ELSE 'Purchase Order'
---END as record_name,
 BUILTIN.DF(custrecord_sas_am_approvertype) as approver_type,
 CASE
     WHEN e.entityid LIKE 'EM%' THEN e.entityid || ' ' || e.firstname || ' ' || e.lastname
@@ -32,10 +26,5 @@ LEFT JOIN employee e
 ON e.id = am.custrecord_sas_am_approver
 
 WHERE am.isinactive = 'F'
---and CASE
-   -- WHEN BUILTIN.DF(custrecord_sas_am_approvalrule) LIKE '%Expense%' THEN 'Expense Report'
-	--WHEN BUILTIN.DF(custrecord_sas_am_approvalrule) LIKE '%Journals%' THEN 'Journal'
-	--ELSE 'Purchase Order'
---END = 'Purchase Order'
 
 --and entityid = 'EM0230'
