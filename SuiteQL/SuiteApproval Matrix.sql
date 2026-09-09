@@ -27,6 +27,6 @@ LEFT JOIN employee e
 
 WHERE am.isinactive = 'F'
 
-ORDER BY subsidiary, priority, record_name, min_approval_amount
+ORDER BY subsidiary, priority, record_name, Min_Approval_Amount
 
---and entityid = 'EM0230'
+and entityid = 'EM230'
