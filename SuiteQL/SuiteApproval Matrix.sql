@@ -1,7 +1,7 @@
 SELECT
     ar.custrecord_sas_ar_subsidiary as subsidiary,
     s.name as subsidiary_name,
-    am.id as approval_rule_internal_id,
+    ar.id as approval_rule_internal_id,
     ar.name as approval_rule,
     ar.BUILTIN.DF(custrecord_sas_ar_record_name) as record_name,
     ar.custrecord_sas_ar_priority as priority,
@@ -27,6 +27,6 @@ LEFT JOIN employee e
 
 WHERE am.isinactive = 'F'
 
-ORDER BY subsidiary, priority, record_name, Min_Approval_Amount
+--ORDER BY subsidiary, priority, record_name, Min_Approval_Amount
 
-and entityid = 'EM230'
+and entityid = 'EM216'
