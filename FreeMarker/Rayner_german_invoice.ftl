@@ -76,9 +76,9 @@
             <tr>
                 
                 <td  align="left" style="text-align: left;  font-size: 9px;">
-                  <#if !record.billaddress?has_content>
+                  <!--#if !record.billaddress?has_content-->
                     Rayner Surgical GmbH - Rudower Chaussee 9 - D-12489 Berlin
-                  </#if>    
+                  <!--/#if-->    
                     <br/> <br/> <#if record.billaddress?contains(record.billcity + "  " + record.billzip)>
                     ${record.billaddress?replace(record.billcity + "  " + record.billzip, record.billzip + "  " + record.billcity)}
                   <#else>
