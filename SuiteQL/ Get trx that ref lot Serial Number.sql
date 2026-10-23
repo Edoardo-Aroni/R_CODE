@@ -16,5 +16,5 @@ FROM
 	INNER JOIN Transaction ON
 		( Transaction.ID = InventoryAssignment.Transaction )
 WHERE
-	( InventoryNumber.Item = 20016 )
-	AND ( InventoryNumber.InventoryNumber = '3720726' )
+	( InventoryNumber.Item = 1275 )
+	AND ( InventoryNumber.InventoryNumber = '10117812101' )
