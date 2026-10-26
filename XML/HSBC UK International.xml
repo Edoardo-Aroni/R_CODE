@@ -1,0 +1,172 @@
+<#-- format specific processing -->
+<#function buildEntityBillingAddress entity>
+<#assign address = "">
+<#if entity.billaddress1?has_content >
+<#assign address = entity.billaddress1 >
+<#elseif entity.shipaddress1?has_content >
+<#assign address = entity.shipaddress1 >
+<#elseif entity.address1?has_content >
+<#assign address = entity.address1 >
+</#if>
+<#return address>
+</#function>
+<#function buildUnstructuredInfo payment>
+<#assign paidTransactions = transHash[payment.internalid]>
+<#assign referenceNote = "">
+<#assign paidTransactionsCount = paidTransactions?size>
+<#if (paidTransactionsCount >= 1)>
+<#list paidTransactions as transaction>
+<#if transaction.tranid?has_content>
+<#assign referenceNote = referenceNote + transaction.tranid>
+<#if (paidTransactionsCount > 1 && transaction_index != paidTransactionsCount - 1)>
+<#assign referenceNote = referenceNote + ",">
+</#if>
+</#if>
+</#list>
+</#if>
+<#return referenceNote>
+</#function>
+<#function convertCharSet text>
+<#assign value = text>
+<#assign value = value?replace('&','+')>
+<#assign value = value?replace('*','.')>
+<#assign value = value?replace('$','.')>
+<#assign value = value?replace('%','.')>
+<#assign value = convertToLatinCharSet(value)>
+<#return value>
+</#function>
+<#-- cached values -->
+<#assign totalAmount = computeTotalAmount(payments)>
+<#-- template building -->
+#OUTPUT START#
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03">
+<CstmrCdtTrfInitn>
+<GrpHdr>
+<MsgId>${pfa.id}</MsgId>
+<CreDtTm>${pfa.custrecord_2663_file_creation_timestamp?date?string("yyyy-MM-dd")}T${pfa.custrecord_2663_file_creation_timestamp?time?string("HH:mm:ss")}</CreDtTm>
+<NbOfTxs>${payments?size?c}</NbOfTxs>
+<CtrlSum>${setMaxLength(formatAmount(totalAmount,"decLessThan1"),18)}</CtrlSum>
+<InitgPty>
+<Nm>${setMaxLength(convertToLatinCharSet(cbank.custpage_eft_custrecord_2663_statement_name),140)}</Nm>
+<#if cbank.custpage_eft_custrecord_2663_bank_comp_id?has_content>
+<Id>
+<OrgId>
+<Othr>
+<Id>${setMaxLength(convertToLatinCharSet(cbank.custpage_eft_custrecord_2663_bank_comp_id),35)}</Id>
+</Othr>
+</OrgId>
+</Id>
+<#elseif cbank.custpage_eft_custrecord_2663_bic?has_content>
+<Id>
+<OrgId>
+<BICOrBEI>${cbank.custpage_eft_custrecord_2663_bic?upper_case}</BICOrBEI>
+</OrgId>
+</Id>
+</#if>
+</InitgPty>
+</GrpHdr>
+<PmtInf>
+<PmtInfId>${setMaxLength(pfa.id,5)}-${setMaxLength(convertToLatinCharSet(pfa.custrecord_2663_ref_note),29)}</PmtInfId>
+<PmtMtd>TRF</PmtMtd>
+<PmtTpInf>
+<SvcLvl>
+<Cd>URGP</Cd>
+</SvcLvl>
+</PmtTpInf>
+<ReqdExctnDt>${pfa.custrecord_2663_process_date?string("yyyy-MM-dd")}</ReqdExctnDt>
+<Dbtr>
+<Nm>${setMaxLength(convertToLatinCharSet(cbank.custpage_eft_custrecord_2663_statement_name),35)}</Nm>
+<PstlAdr>
+<StrtNm>${cbank.custpage_eft_custrecord_2663_bank_address1}</StrtNm>
+<PstCd>${cbank.custpage_eft_custrecord_2663_bank_zip}</PstCd>
+<TwnNm>${cbank.custpage_eft_custrecord_2663_bank_city}</TwnNm>
+<CtrySubDvsn>${cbank.custpage_eft_custrecord_2663_bank_state}</CtrySubDvsn>
+<Ctry>${getCountryCode(cbank.custpage_eft_custrecord_2663_bank_country)}</Ctry>
+</PstlAdr>
+</Dbtr>
+<DbtrAcct>
+<Id>
+<Othr>
+<Id>${setMaxLength(convertToLatinCharSet(cbank.custpage_eft_custrecord_2663_acct_num),8)}</Id>
+</Othr>
+</Id>
+<Ccy>${getCurrencySymbol(cbank.custrecord_2663_currency)}</Ccy>
+</DbtrAcct>
+<DbtrAgt>
+<FinInstnId>
+<ClrSysMmbId>
+<MmbId>${cbank.custpage_eft_custrecord_2663_branch_num}</MmbId>
+</ClrSysMmbId>
+<PstlAdr>
+<Ctry>${getCountryCode(cbank.custpage_eft_custrecord_2663_bank_country)}</Ctry>
+</PstlAdr>
+</FinInstnId>
+</DbtrAgt>
+<ChrgBr>SHAR</ChrgBr>
+<#list payments as payment>
+<#assign ebank = ebanks[payment_index]>
+<#assign entity = entities[payment_index]>
+<CdtTrfTxInf>
+<PmtId>
+<EndToEndId>${setMaxLength(payment.tranid,35)}</EndToEndId>
+</PmtId>
+<Amt>
+<InstdAmt Ccy="${getCurrencySymbol(payment.currency)}">${formatAmount(getAmount(payment),"decLessThan1")}</InstdAmt>
+</Amt>
+<CdtrAgt>
+<FinInstnId>
+<#if ebank.custrecord_2663_entity_bic?has_content>
+<BIC>${ebank.custrecord_2663_entity_bic?upper_case}</BIC>
+<#elseif ebank.custrecord_2663_entity_branch_no?has_content>
+<ClrSysMmbId>
+<MmbId>${ebank.custrecord_2663_entity_branch_no}</MmbId>
+</ClrSysMmbId>
+</#if>
+<PstlAdr>
+<Ctry>${getCountryCode(ebank.custrecord_2663_entity_country)}</Ctry>
+</PstlAdr>
+</FinInstnId>
+</CdtrAgt>
+<Cdtr>
+<Nm>${setMaxLength(convertToLatinCharSet(buildEntityName(entity)),35)?html}</Nm>
+<PstlAdr>
+<#if entity.billaddress1?has_content>
+<StrtNm>${setMaxLength(convertToLatinCharSet(entity.billaddress1),70)?html}</StrtNm>
+</#if>
+<#if entity.billzipcode?has_content>
+<PstCd>${setMaxLength(entity.billzipcode,16)?html}</PstCd>
+</#if>
+<#if entity.billcity?has_content>
+<TwnNm>${setMaxLength(convertToLatinCharSet(entity.billcity),35)?html}</TwnNm>
+</#if>
+<#if entity.statedisplayname?has_content>
+<CtrySubDvsn>${setMaxLength(convertToLatinCharSet(entity.statedisplayname),35)?html}</CtrySubDvsn>
+<#elseif entity.billstate?has_content>
+<CtrySubDvsn>${setMaxLength(convertToLatinCharSet(entity.billstate),35)?html}</CtrySubDvsn>
+</#if>
+<#if entity.billcountrycode?has_content>
+<Ctry>${entity.billcountrycode}</Ctry>
+</#if>
+</PstlAdr>
+</Cdtr>
+<CdtrAcct>
+<Id>
+<#if ebank.custrecord_2663_entity_iban?has_content>
+<IBAN>${ebank.custrecord_2663_entity_iban}</IBAN>
+<#elseif ebank.custrecord_2663_entity_acct_no?has_content>
+<Othr><Id>${setMaxLength(convertToLatinCharSet(ebank.custrecord_2663_entity_acct_no),34)}</Id></Othr>
+</#if>
+</Id>
+</CdtrAcct>
+<RmtInf>
+<Ustrd>${setMaxLength(convertToLatinCharSet(buildUnstructuredInfo(payment)),140)}</Ustrd>
+</RmtInf>
+</CdtTrfTxInf>
+</#list>
+</PmtInf>
+</CstmrCdtTrfInitn>
+</Document>
+<#rt>
+#OUTPUT END#
