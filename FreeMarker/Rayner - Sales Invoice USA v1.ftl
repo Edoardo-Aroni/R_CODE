@@ -16,7 +16,7 @@
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;"><tr>
-	<td rowspan="3" style="height: 191px;"><#if companyInformation.logoUrl?length != 0></#if>${record.custbody_alf_subsidiary_address}<br /><br />E-mail: ${subsidiary.custrecord_invoice_company_email}<br />Telephone: ${subsidiary.custrecord_nsl_atb_phone_ds}<br /><br /><br /><br />&nbsp;<br /><br />${record.billaddress}</td>
+	<td rowspan="3" style="height: 191px;"><#if companyInformation.logoUrl?length != 0></#if>${record.custbody_alf_subsidiary_address}<br /><br />E-mail: ${subsidiary.custrecord_invoice_company_email}<br />Telephone: ${subsidiary.custrecord_face_seller_phone}<br /><br /><br /><br />&nbsp;<br /><br />${record.billaddress}</td>
 	<td align="right"><img src="${companyInformation.logoUrl}" style="float: left; margin: 7px" /></td>
 	</tr>
 	<tr>
