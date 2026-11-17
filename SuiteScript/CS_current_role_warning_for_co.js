@@ -11,7 +11,7 @@ define(['N/runtime', 'N/ui/dialog'], (runtime, dialog) => {
         }
 
         const currentUser = runtime.getCurrentUser();
-        const targetRole = 1050; // Replace with Role Internal ID
+        const targetRole = 1263; // RAYNER SSO - Credit Hold Order Change Override
 
         if (currentUser.role === targetRole) {
             dialog.alert({
