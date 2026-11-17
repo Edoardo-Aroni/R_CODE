@@ -6,7 +6,8 @@ define(['N/runtime', 'N/ui/dialog'], (runtime, dialog) => {
 
     const pageInit = (context) => {
 
-        if (context.mode !== 'create') {
+        // Only run in Create or Edit mode
+        if (context.mode !== 'create' && context.mode !== 'edit') {
             return;
         }
 
