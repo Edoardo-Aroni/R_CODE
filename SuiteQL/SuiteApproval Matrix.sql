@@ -38,6 +38,7 @@ LEFT JOIN employee e
 
 WHERE am.isinactive = 'F'
 AND BUILTIN.DF(ar.custrecord_sas_ar_record_name) = 'Purchase Order'
+and ar.isinactive = 'F'
 
 --ORDER BY subsidiary, priority, record_name, Min_Approval_Amount
 
